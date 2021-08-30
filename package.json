@@ -9,6 +9,7 @@
     "test:watch": "DEBUG=sourced* jest --config ./jest.json --coverage --verbose --watch",
     "test:integration": "DEBUG=sourced* jest --config ./jest.integration.json --coverage --verbose",
     "test:integration:watch": "DEBUG=sourced* jest --config ./jest.integration.json --coverage --verbose --watch",
+    "test:all": "jest --config ./jest.all.json --coverage --verbose",
     "lint": "eslint src __tests__ --ext=.ts",
     "lint:fix": "eslint --fix src __tests__ --ext=.ts"
   },

@@ -1,0 +1,24 @@
+{
+  "roots": ["<rootDir>/src", "<rootDir>/__tests__/"],
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "modulePaths": [
+    "<rootDir>/src"
+  ],
+  "moduleDirectories": [
+    "node_modules"
+  ],
+  "moduleFileExtensions": [
+    "js",
+    "ts"
+  ],
+  "coverageThreshold": {
+    "global": {
+      "branches": 20,
+      "functions": 20,
+      "lines": 20,
+      "statements": 20
+    }
+  },
+  "collectCoverageFrom": ["src/*.(js|ts)"]
+}
