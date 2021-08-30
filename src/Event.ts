@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, Index } from "typeorm";
 
 export enum EventType {
   Event,
@@ -11,21 +11,26 @@ export class Event {
   _id: string;
 
   @Column()
+  @Index()
   id: string;
 
   @Column()
+  @Index()
   version: number;
 
   @Column()
+  @Index()
   snapshotVersion: number;
 
   @Column({ type: "bigint" })
   timestamp: number;
 
   @Column()
+  @Index()
   method: string;
 
   @Column()
+  @Index()
   entityType: string;
 
   @Column({ type: "jsonb" })
@@ -36,5 +41,6 @@ export class Event {
     enum: EventType,
     default: EventType.Event
   })
+  @Index()
   type: EventType;
 }
