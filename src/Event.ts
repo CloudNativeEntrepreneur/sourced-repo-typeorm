@@ -1,35 +1,33 @@
 import { Entity, PrimaryColumn, Column, CreateDateColumn } from "typeorm";
 
 export enum EventType {
-    Event,
-    Snapshot
+  Event,
+  Snapshot,
 }
 
 @Entity()
 export class Event {
+  @PrimaryColumn()
+  id: string;
 
-    @PrimaryColumn()
-    id: string;
+  @Column()
+  version: number;
 
-    @Column()
-    version: number;
-    
-    @Column()
-    snapshotVersion: number;
+  @Column()
+  snapshotVersion: number;
 
-    @CreateDateColumn({ type: 'timestamp' })
-    timestamp: Date;
+  @CreateDateColumn({ type: "timestamp" })
+  timestamp: Date;
 
-    @Column()
-    method: string;
-    
-    @Column()
-    entityType: string;
+  @Column()
+  method: string;
 
-    @Column({type: 'jsonb'})
-    data: any
+  @Column()
+  entityType: string;
 
-    @Column()
-    type: EventType
+  @Column({ type: "jsonb" })
+  data: any;
 
+  @Column()
+  type: EventType;
 }

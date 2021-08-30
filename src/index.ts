@@ -1,78 +1,72 @@
-import { EventEmitter } from 'eventemitter3'
-import { persistenceLayer } from './persistenceLayer'
-import { Event, EventType } from './Event'
-import { MoreThan, Connection, Repository as TypeORMRepository } from 'typeorm'
-import debug from 'debug'
+import { EventEmitter } from "eventemitter3";
+import { persistenceLayer } from "./persistenceLayer";
+import { Event, EventType } from "./Event";
+import { MoreThan, Connection, Repository as TypeORMRepository } from "typeorm";
+import debug from "debug";
 
-const log = debug('sourced-repo')
+const log = debug("sourced-repo");
 
 interface RepositoryOptions {
-  indices: string[]
-  forceSnapshot: boolean,
-  snapshotFrequency: number
+  indices: string[];
+  forceSnapshot: boolean;
+  snapshotFrequency: number;
 }
 
 export class Repository extends EventEmitter {
-  EntityType: any
-  connection: Connection
-  forceSnapshot: boolean
-  indices: string[]
-  options: RepositoryOptions
-  snapshotFrequency: number
-  events: TypeORMRepository<Event>
+  EntityType: any;
+  connection: Connection;
+  forceSnapshot: boolean;
+  indices: string[];
+  options: RepositoryOptions;
+  snapshotFrequency: number;
+  events: TypeORMRepository<Event>;
 
-  constructor (
+  constructor(
     EntityType,
     options = {
       indices: [],
       forceSnapshot: false,
-      snapshotFrequency: 10
+      snapshotFrequency: 10,
     }
   ) {
-    super()
+    super();
 
     if (!persistenceLayer.connection) {
-      throw new Error('persistenceLayer has not been initialized. you must call require(\'sourced-repo/persistenceLayer\').connect(connectionOptions); before instantiating a Repository')
+      throw new Error(
+        "persistenceLayer has not been initialized. you must call require('sourced-repo/persistenceLayer').connect(connectionOptions); before instantiating a Repository"
+      );
     }
 
-    const connection = persistenceLayer.connection
-    this.connection = connection
+    const connection = persistenceLayer.connection;
+    this.connection = connection;
 
     const indices = [
-      ...new Set(
-        [
-          ...options.indices, 
-          ...[
-            'id',
-            'method',
-            'type',
-            'entityType',
-            'version'
-          ]
-        ]
-      )
-    ]
+      ...new Set([
+        ...options.indices,
+        ...["id", "method", "type", "entityType", "version"],
+      ]),
+    ];
 
-    this.EntityType = EntityType
-    this.indices = indices
-    this.snapshotFrequency = options.snapshotFrequency
-    this.forceSnapshot = options.forceSnapshot
+    this.EntityType = EntityType;
+    this.indices = indices;
+    this.snapshotFrequency = options.snapshotFrequency;
+    this.forceSnapshot = options.forceSnapshot;
 
-    this.events = this.connection.getRepository(Event)
+    this.events = this.connection.getRepository(Event);
 
-    log(`"${this.EntityType.name}" events store ready`)
+    log(`"${this.EntityType.name}" events store ready`);
 
-    this.emit('ready')
+    this.emit("ready");
   }
 
-  async commit (entity) {
-    log(`committing ${this.EntityType.name} for id ${entity.id}`)
+  async commit(entity) {
+    log(`committing ${this.EntityType.name} for id ${entity.id}`);
 
     try {
-      await this._commitEvents(entity)
+      await this._commitEvents(entity);
     } catch (err) {
-      console.error(err)
-      throw err
+      console.error(err);
+      throw err;
     }
 
     // try {
@@ -82,99 +76,99 @@ export class Repository extends EventEmitter {
     //   throw err
     // }
 
-    this._emitEvents(entity)
-    return this
+    this._emitEvents(entity);
+    return this;
   }
 
-  get (id, cb) {
-    return this._getByIndex('id', id, cb)
+  get(id, cb) {
+    return this._getByIndex("id", id, cb);
   }
 
-  _getByIndex (index, value, cb) {
-    const self = this
+  _getByIndex(index, value, cb) {
+    const self = this;
 
     return new Promise(async (resolve, reject) => {
-      log(`getting ${this.EntityType.name} where "${index}" is "${value}"`)
+      log(`getting ${this.EntityType.name} where "${index}" is "${value}"`);
 
       const snapshot = await this.events.findOne({
         order: {
-          version: "DESC"
+          version: "DESC",
         },
         where: [
-          { type: 'Snapshot' },
+          { type: "Snapshot" },
           { entityType: this.EntityType.name },
-          { [index]: value }
-        ]
-      })
+          { [index]: value },
+        ],
+      });
 
       const events = await this.events.find({
         order: {
-          version: "ASC"
+          version: "ASC",
         },
         where: [
-          { type: 'Event' },
+          { type: "Event" },
           { entityType: this.EntityType.name },
           { [index]: value },
-          { version: MoreThan(snapshot.version) }
-        ]
-      })
+          { version: MoreThan(snapshot.version) },
+        ],
+      });
 
-      log({ snapshot, events })
+      log({ snapshot, events });
 
       if (!snapshot && !events.length) {
-        return resolve(null)
+        return resolve(null);
       }
 
-      const id = index === 'id' ? value : snapshot ? snapshot.id : events[0].id
+      const id = index === "id" ? value : snapshot ? snapshot.id : events[0].id;
 
-      const entity = self._deserialize(id, snapshot, events)
-      return resolve(entity)
-    })
+      const entity = self._deserialize(id, snapshot, events);
+      return resolve(entity);
+    });
   }
 
-  _commitEvents (entity) {
+  _commitEvents(entity) {
     return new Promise(async (resolve, reject) => {
-      if (entity.newEvents.length === 0) return resolve(null)
+      if (entity.newEvents.length === 0) return resolve(null);
 
       if (!entity.id) {
         return reject(
           new Error(
             `Cannot commit an entity of type ${this.EntityType} without an [id] property`
           )
-        )
+        );
       }
 
-      const newEvents = entity.newEvents
+      const newEvents = entity.newEvents;
       newEvents.forEach((event) => {
         this.indices.forEach(function (index) {
-          event[index] = entity[index]
-        })
-      })
+          event[index] = entity[index];
+        });
+      });
 
-      const eventObjects = newEvents.map(newEvent => {
-        let event = new Event()
-        event.id = newEvent.id
-        event.version = newEvent.version
-        event.snapshotVersion = newEvent.snapshotVersion
-        event.timestamp = newEvent.timestamp
-        event.method = newEvent.method
-        event.entityType = this.EntityType
-        event.data = newEvent.data
-        event.type = EventType.Event
-      })
+      const eventObjects = newEvents.map((newEvent) => {
+        const event = new Event();
+        event.id = newEvent.id;
+        event.version = newEvent.version;
+        event.snapshotVersion = newEvent.snapshotVersion;
+        event.timestamp = newEvent.timestamp;
+        event.method = newEvent.method;
+        event.entityType = this.EntityType;
+        event.data = newEvent.data;
+        event.type = EventType.Event;
+      });
 
       try {
-        await this.events.insert(eventObjects)
+        await this.events.insert(eventObjects);
       } catch (err) {
-        log('failed to insert new events', err)
-        throw err
+        log("failed to insert new events", err);
+        throw err;
       }
-      entity.newEvents = []
+      entity.newEvents = [];
 
-      log(`committed ${this.EntityType.name}.events for id ${entity.id}`)
+      log(`committed ${this.EntityType.name}.events for id ${entity.id}`);
 
-      resolve(entity)
-    })
+      resolve(entity);
+    });
   }
 
   // _commitSnapshots (entity) {
@@ -204,24 +198,24 @@ export class Repository extends EventEmitter {
   //   })
   // }
 
-  _deserialize (id, snapshot, events) {
-    log('deserializing %s entity ', this.EntityType.name)
-    const entity = new this.EntityType(snapshot, events)
-    entity.id = id
-    return entity
+  _deserialize(id, snapshot, events) {
+    log("deserializing %s entity ", this.EntityType.name);
+    const entity = new this.EntityType(snapshot, events);
+    entity.id = id;
+    return entity;
   }
 
-  _emitEvents (entity) {
-    log('emitting events')
-    const self = this
+  _emitEvents(entity) {
+    log("emitting events");
+    const self = this;
 
-    const eventsToEmit = entity.eventsToEmit
-    entity.eventsToEmit = []
+    const eventsToEmit = entity.eventsToEmit;
+    entity.eventsToEmit = [];
     eventsToEmit.forEach(function (eventToEmit) {
-      const args = Array.prototype.slice.call(eventToEmit)
-      self.EntityType.prototype.emit.apply(entity, args)
-    })
+      const args = Array.prototype.slice.call(eventToEmit);
+      self.EntityType.prototype.emit.apply(entity, args);
+    });
 
-    log('emitted local events for id %s', entity.id)
+    log("emitted local events for id %s", entity.id);
   }
 }

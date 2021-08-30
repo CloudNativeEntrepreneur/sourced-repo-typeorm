@@ -1,38 +1,42 @@
-import { persistenceLayer } from '../../src/persistenceLayer'
+import { persistenceLayer } from "../../src/persistenceLayer";
 
-jest.mock('typeorm', () => ({
-  createConnection: jest.fn(() => Promise.resolve({
-    close: jest.fn()
-  })),
-  Connection: jest.fn()
-}))
+jest.mock("typeorm", () => ({
+  createConnection: jest.fn(() =>
+    Promise.resolve({
+      close: jest.fn(),
+    })
+  ),
+  Connection: jest.fn(),
+}));
 
-describe('persistenceLayer', () => {
-  it('should be defined', () => {
-    expect(persistenceLayer).toBeDefined()
-    expect(persistenceLayer.connect).toBeDefined()
-    expect(persistenceLayer.disconnect).toBeDefined()
-    expect(persistenceLayer.connection).toEqual(null)
+describe("persistenceLayer", () => {
+  it("should be defined", () => {
+    expect(persistenceLayer).toBeDefined();
+    expect(persistenceLayer.connect).toBeDefined();
+    expect(persistenceLayer.disconnect).toBeDefined();
+    expect(persistenceLayer.connection).toEqual(null);
   });
 
-  it('should connect and disconnect', async () => {
-    const { createConnection } = await import('typeorm')
+  it("should connect and disconnect", async () => {
+    const { createConnection } = await import("typeorm");
 
     await persistenceLayer.connect({
       type: "postgres",
-      url: 'FAKE_URL_FOR_TESTING'
-    })
+      url: "FAKE_URL_FOR_TESTING",
+    });
 
     expect(createConnection).toBeCalledWith({
       type: "postgres",
-      url: 'FAKE_URL_FOR_TESTING'
-    })
-    expect(persistenceLayer.connection).toBeDefined()
-    expect(persistenceLayer.connection).toEqual({ close: expect.any(Function) })
-    expect(persistenceLayer.connection.close).not.toBeCalled()
+      url: "FAKE_URL_FOR_TESTING",
+    });
+    expect(persistenceLayer.connection).toBeDefined();
+    expect(persistenceLayer.connection).toEqual({
+      close: expect.any(Function),
+    });
+    expect(persistenceLayer.connection.close).not.toBeCalled();
 
-    await persistenceLayer.disconnect()
+    await persistenceLayer.disconnect();
 
-    expect(persistenceLayer.connection.close).toBeCalled()
+    expect(persistenceLayer.connection.close).toBeCalled();
   });
 });
