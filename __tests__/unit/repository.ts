@@ -2,29 +2,24 @@ import { Repository } from "../../src/index";
 import { persistenceLayer } from "../../src/persistenceLayer";
 import { Entity } from "sourced";
 
-class Person extends Entity {
-  name: string;
-  age: number;
-
+class Example extends Entity {
+  id: number;
+  value: number;
   constructor(snapshot, events) {
     super();
-
-    this.name = "";
-    this.age = 0;
-
+    this.id = null;
+    this.value = 0;
     this.rehydrate(snapshot, events);
   }
 
-  setName(name: string) {
-    this.name = name;
-    this.digest("setName", name);
-    this.enqueue("name.set");
+  init(id) {
+    this.id = id;
   }
 
-  setAge(age: number) {
-    this.age = age;
-    this.digest("setAge", age);
-    this.enqueue("age.set");
+  increment() {
+    this.value++;
+    this.digest("increment", {});
+    this.enqueue("incremented", this);
   }
 }
 
@@ -56,7 +51,7 @@ describe("sourced-repo-postgresql", () => {
       expect(persistenceLayer.connection.getRepository).toBeDefined();
     }
 
-    const eventsRepository = new Repository(Person);
+    const eventsRepository = new Repository(Example);
     expect(eventsRepository).toBeDefined();
     expect(eventsRepository.get).toBeDefined();
     expect(eventsRepository.commit).toBeDefined();

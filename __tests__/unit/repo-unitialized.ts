@@ -1,5 +1,4 @@
 import { Repository } from "../../src/index";
-import { persistenceLayer } from "../../src/persistenceLayer";
 import { Entity } from "sourced";
 
 class Person extends Entity {
@@ -27,10 +26,6 @@ class Person extends Entity {
     this.enqueue("age.set");
   }
 }
-
-const postgresConnectionUrl =
-  process.env.POSTGRES_URL ||
-  "postgres://sourced:sourced@sourced-postgres.default.svc.cluster.local:5432/sourced";
 
 jest.mock("../../src/persistenceLayer", () => ({
   persistenceLayer: {
