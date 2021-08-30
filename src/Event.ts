@@ -7,7 +7,7 @@ export enum EventType {
 
 @Entity()
 export class Event {
-  @PrimaryGeneratedColumn({ type: 'bigint' })
+  @PrimaryGeneratedColumn({ type: "bigint" })
   _id: string;
 
   @Column()
@@ -37,9 +37,9 @@ export class Event {
   data: any;
 
   @Column({
-    type: 'enum',
+    type: "enum",
     enum: EventType,
-    default: EventType.Event
+    default: EventType.Event,
   })
   @Index()
   type: EventType;

@@ -56,5 +56,4 @@ describe("sourced-repo-postgresql", () => {
     expect(eventsRepository.get).toBeDefined();
     expect(eventsRepository.commit).toBeDefined();
   });
-
 });

@@ -1,10 +1,10 @@
-import { Repository } from "../../src/index";
-import { persistenceLayer } from "../../src/persistenceLayer";
+import { Repository, persistenceLayer } from "../../src/index";
 import { Entity } from "sourced";
-import { v4 as uuid } from "uuid"
-import debug from 'debug'
+import { v4 as uuid } from "uuid";
+import debug from "debug";
 
-const log = debug('sourced-repo-typeorm')
+const log = debug("sourced-repo-typeorm:integration-tests");
+log("Starting integration tests");
 
 class Person extends Entity {
   id: string;
@@ -40,8 +40,8 @@ class Person extends Entity {
 
   birthday() {
     this.age = this.age + 1;
-    this.digest('birthday', {})
-    this.enqueue('birthday')
+    this.digest("birthday", {});
+    this.enqueue("birthday");
   }
 }
 
@@ -50,7 +50,6 @@ const postgresConnectionUrl =
   "postgresql://sourced:sourced@localhost:5432/sourced";
 
 describe("sourced-repo-typeorm", () => {
-
   it("should throw an error if trying to initialize a repository before connection has been established", () => {
     try {
       new Repository(Person);
@@ -71,13 +70,13 @@ describe("sourced-repo-typeorm", () => {
         connectTimeoutMS: 1000,
       });
     } finally {
-      expect(persistenceLayer.connection).toBeDefined()
+      expect(persistenceLayer.connection).toBeDefined();
     }
-    
+
     try {
       await persistenceLayer.disconnect();
     } finally {
-      expect(persistenceLayer.connection).toBeDefined()
+      expect(persistenceLayer.connection).toBeDefined();
     }
   });
 
@@ -86,62 +85,64 @@ describe("sourced-repo-typeorm", () => {
       await persistenceLayer.connect({
         type: "postgres",
         url: postgresConnectionUrl,
-        connectTimeoutMS: 1000
+        connectTimeoutMS: 1000,
       });
     } finally {
-      expect(persistenceLayer.connection).toBeDefined()
+      expect(persistenceLayer.connection).toBeDefined();
     }
-    
-    const personRepository = new Repository(Person)
 
-    let person1 = await personRepository.get(1)
-    expect(person1).toBe(null)
+    const personRepository = new Repository(Person);
 
-    const person2 = new Person()
-    const harryPotterId = uuid()
-    person2.assignId(harryPotterId)
-    person2.setName('Harry Potter')
-    person2.setAge(17)
+    const person1 = await personRepository.get(1);
+    expect(person1).toBe(null);
 
-    await personRepository.commit(person2)
+    const person2 = new Person();
+    const harryPotterId = uuid();
+    person2.assignId(harryPotterId);
+    person2.setName("Harry Potter");
+    person2.setAge(17);
 
-    let harryPotter = await personRepository.get(harryPotterId)
+    await personRepository.commit(person2);
 
-    expect(harryPotter.id).toEqual(person2.id)
-    expect(harryPotter.name).toEqual(person2.name)
-    expect(harryPotter.age).toEqual(person2.age)
-    expect(harryPotter.version).toEqual(person2.version)
+    const harryPotter = await personRepository.get(harryPotterId);
 
-    let x = 0
+    expect(harryPotter.id).toEqual(person2.id);
+    expect(harryPotter.name).toEqual(person2.name);
+    expect(harryPotter.age).toEqual(person2.age);
+    expect(harryPotter.version).toEqual(person2.version);
+
+    let x = 0;
     while (x < 10) {
       harryPotter.birthday();
       x++;
     }
 
-    await personRepository.commit(harryPotter)
+    await personRepository.commit(harryPotter);
 
-    const hpFromSnapshot = await personRepository.get(harryPotterId)
+    const hpFromSnapshot = await personRepository.get(harryPotterId);
 
-    expect(hpFromSnapshot.age).toBe(27)
-    expect(hpFromSnapshot.version).toBe(13)
-    expect(hpFromSnapshot.snapshotVersion).toBe(13)
+    expect(hpFromSnapshot.age).toBe(27);
+    expect(hpFromSnapshot.version).toBe(13);
+    expect(hpFromSnapshot.snapshotVersion).toBe(13);
 
-    hpFromSnapshot.birthday()
-    hpFromSnapshot.birthday()
-    hpFromSnapshot.birthday()
+    hpFromSnapshot.birthday();
+    hpFromSnapshot.birthday();
+    hpFromSnapshot.birthday();
 
-    await personRepository.commit(hpFromSnapshot)
+    await personRepository.commit(hpFromSnapshot);
 
-    const hpFromSnapshotWithExtraEvent = await personRepository.get(harryPotterId)
+    const hpFromSnapshotWithExtraEvent = await personRepository.get(
+      harryPotterId
+    );
 
-    expect(hpFromSnapshotWithExtraEvent.age).toBe(30)
-    expect(hpFromSnapshotWithExtraEvent.snapshotVersion).toBe(13)
-    expect(hpFromSnapshotWithExtraEvent.version).toBe(16)
+    expect(hpFromSnapshotWithExtraEvent.age).toBe(30);
+    expect(hpFromSnapshotWithExtraEvent.snapshotVersion).toBe(13);
+    expect(hpFromSnapshotWithExtraEvent.version).toBe(16);
 
     try {
       await persistenceLayer.disconnect();
     } finally {
-      expect(persistenceLayer.connection).toBeDefined()
+      expect(persistenceLayer.connection).toBeDefined();
     }
   });
 });

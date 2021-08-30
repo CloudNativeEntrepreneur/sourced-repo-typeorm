@@ -34,7 +34,7 @@ describe("persistenceLayer", () => {
       type: "postgres",
       url: "FAKE_URL_FOR_TESTING",
       entities: [Event],
-      synchronize: true
+      synchronize: true,
     });
     expect(persistenceLayer.connection).toBeDefined();
     expect(persistenceLayer.connection).toEqual({
