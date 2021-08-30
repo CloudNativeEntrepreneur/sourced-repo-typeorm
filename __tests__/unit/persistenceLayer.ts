@@ -1,3 +1,4 @@
+import { Event } from "../../src/Event";
 import { persistenceLayer } from "../../src/persistenceLayer";
 
 jest.mock("typeorm", () => ({
@@ -7,6 +8,9 @@ jest.mock("typeorm", () => ({
     })
   ),
   Connection: jest.fn(),
+  PrimaryGeneratedColumn: jest.fn(),
+  Column: jest.fn(),
+  Entity: jest.fn(),
 }));
 
 describe("persistenceLayer", () => {
@@ -28,6 +32,8 @@ describe("persistenceLayer", () => {
     expect(createConnection).toBeCalledWith({
       type: "postgres",
       url: "FAKE_URL_FOR_TESTING",
+      entities: [Event],
+      synchronize: true
     });
     expect(persistenceLayer.connection).toBeDefined();
     expect(persistenceLayer.connection).toEqual({

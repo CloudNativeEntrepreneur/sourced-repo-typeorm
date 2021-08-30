@@ -7,6 +7,9 @@ jest.mock("typeorm", () => ({
     })
   ),
   Connection: jest.fn(),
+  PrimaryGeneratedColumn: jest.fn(),
+  Column: jest.fn(),
+  Entity: jest.fn(),
 }));
 
 describe("persistenceLayer", () => {

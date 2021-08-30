@@ -120,6 +120,24 @@ describe("sourced-repo-typeorm", () => {
 
     await personRepository.commit(harryPotter)
 
+    const hpFromSnapshot = await personRepository.get(harryPotterId)
+
+    expect(hpFromSnapshot.age).toBe(27)
+    expect(hpFromSnapshot.version).toBe(13)
+    expect(hpFromSnapshot.snapshotVersion).toBe(13)
+
+    hpFromSnapshot.birthday()
+    hpFromSnapshot.birthday()
+    hpFromSnapshot.birthday()
+
+    await personRepository.commit(hpFromSnapshot)
+
+    const hpFromSnapshotWithExtraEvent = await personRepository.get(harryPotterId)
+
+    expect(hpFromSnapshotWithExtraEvent.age).toBe(30)
+    expect(hpFromSnapshotWithExtraEvent.snapshotVersion).toBe(13)
+    expect(hpFromSnapshotWithExtraEvent.version).toBe(16)
+
     try {
       await persistenceLayer.disconnect();
     } finally {

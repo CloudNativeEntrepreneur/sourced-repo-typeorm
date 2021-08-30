@@ -69,13 +69,6 @@ export class Repository extends EventEmitter {
       throw err;
     }
 
-    // try {
-    //   await this._commitSnapshots(entity)
-    // } catch (err) {
-    //   console.error(err)
-    //   throw err
-    // }
-
     this._emitEvents(entity);
     return this;
   }
@@ -122,7 +115,7 @@ export class Repository extends EventEmitter {
 
     const id = index === "id" ? value : snapshot ? snapshot.id : events[0].id;
 
-    const entity = this._deserialize(id, snapshot, events);
+    const entity = this._deserialize(id, snapshot?.data, events);
     return entity;
   }
 
@@ -158,6 +151,26 @@ export class Repository extends EventEmitter {
       return event
     });
 
+    if (
+      this.forceSnapshot ||
+      entity.version >= entity.snapshotVersion + this.snapshotFrequency
+    ) {
+      const snapshot = entity.snapshot()
+
+      log({snapshot})
+      const snapshotEvent = new Event()
+      snapshotEvent.type = EventType.Snapshot
+      snapshotEvent.method = 'snapshot'
+      snapshotEvent.data = snapshot
+      snapshotEvent.id = snapshot.id
+      snapshotEvent.version = snapshot.version
+      snapshotEvent.snapshotVersion = snapshot.snapshotVersion
+      snapshotEvent.timestamp = snapshot.timestamp
+      snapshotEvent.entityType = this.EntityType.name
+
+      eventObjects.push(snapshotEvent)
+    }
+
     log({eventObjects})
 
     try {
@@ -172,33 +185,6 @@ export class Repository extends EventEmitter {
 
     return entity;
   }
-
-  // _commitSnapshots (entity) {
-  //   const self = this
-
-  //   return new Promise((resolve, reject) => {
-  //     if (
-  //       self.forceSnapshot ||
-  //       entity.version >= entity.snapshotVersion + self.snapshotFrequency
-  //     ) {
-  //       const snapshot = entity.snapshot()
-  //       // put new one at the beginning for premptive sorting
-  //       this.snapshots.update((previousSnapshots) => [
-  //         snapshot,
-  //         ...previousSnapshots
-  //       ])
-
-  //       log(
-  //         `committed ${self.EntityType.name}.snapshot for id ${entity.id}`,
-  //         snapshot
-  //       )
-
-  //       return resolve(entity)
-  //     } else {
-  //       return resolve(entity)
-  //     }
-  //   })
-  // }
 
   _deserialize(id, snapshot, events) {
     log("deserializing %s entity ", this.EntityType.name);
