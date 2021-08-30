@@ -5,7 +5,7 @@ import { Entity } from "sourced";
 class Example extends Entity {
   id: number;
   value: number;
-  constructor(snapshot, events) {
+  constructor(snapshot?: any, events?: any) {
     super();
     this.id = null;
     this.value = 0;
@@ -56,4 +56,5 @@ describe("sourced-repo-postgresql", () => {
     expect(eventsRepository.get).toBeDefined();
     expect(eventsRepository.commit).toBeDefined();
   });
+
 });

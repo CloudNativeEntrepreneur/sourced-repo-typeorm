@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, Column, CreateDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
 export enum EventType {
   Event,
@@ -7,7 +7,10 @@ export enum EventType {
 
 @Entity()
 export class Event {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn({ type: 'bigint' })
+  _id: string;
+
+  @Column()
   id: string;
 
   @Column()
@@ -16,8 +19,8 @@ export class Event {
   @Column()
   snapshotVersion: number;
 
-  @CreateDateColumn({ type: "timestamp" })
-  timestamp: Date;
+  @Column({ type: "bigint" })
+  timestamp: number;
 
   @Column()
   method: string;
@@ -28,6 +31,10 @@ export class Event {
   @Column({ type: "jsonb" })
   data: any;
 
-  @Column()
+  @Column({
+    type: 'enum',
+    enum: EventType,
+    default: EventType.Event
+  })
   type: EventType;
 }

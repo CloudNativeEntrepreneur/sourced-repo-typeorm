@@ -4,7 +4,7 @@ import { Event, EventType } from "./Event";
 import { MoreThan, Connection, Repository as TypeORMRepository } from "typeorm";
 import debug from "debug";
 
-const log = debug("sourced-repo");
+const log = debug("sourced-repo-typeorm");
 
 interface RepositoryOptions {
   indices: string[];
@@ -43,7 +43,7 @@ export class Repository extends EventEmitter {
     const indices = [
       ...new Set([
         ...options.indices,
-        ...["id", "method", "type", "entityType", "version"],
+        ...["id"],
       ]),
     ];
 
@@ -92,9 +92,11 @@ export class Repository extends EventEmitter {
         version: "DESC",
       },
       where: [
-        { type: "Snapshot" },
-        { entityType: this.EntityType.name },
-        { [index]: value },
+        { 
+          type: EventType.Snapshot,
+          entityType: this.EntityType.name,
+          [index]: value 
+        },
       ],
     });
 
@@ -103,10 +105,12 @@ export class Repository extends EventEmitter {
         version: "ASC",
       },
       where: [
-        { type: "Event" },
-        { entityType: this.EntityType.name },
-        { [index]: value },
-        { version: MoreThan(snapshot.version) },
+        { 
+          type: EventType.Event,
+          entityType: this.EntityType.name,
+          [index]: value,
+          version: MoreThan(snapshot?.version || 0),
+        }
       ],
     });
 
@@ -131,24 +135,30 @@ export class Repository extends EventEmitter {
       );
     }
 
+    log({entity, originalNewEvents: entity.newEvents})
+    
     const newEvents = entity.newEvents;
     newEvents.forEach((event) => {
       this.indices.forEach(function (index) {
         event[index] = entity[index];
       });
     });
+    log({newEvents})
 
     const eventObjects = newEvents.map((newEvent) => {
       const event = new Event();
-      event.id = newEvent.id;
+      event.id = entity.id;
       event.version = newEvent.version;
-      event.snapshotVersion = newEvent.snapshotVersion;
+      event.snapshotVersion = entity.snapshotVersion;
       event.timestamp = newEvent.timestamp;
       event.method = newEvent.method;
-      event.entityType = this.EntityType;
+      event.entityType = this.EntityType.name;
       event.data = newEvent.data;
       event.type = EventType.Event;
+      return event
     });
+
+    log({eventObjects})
 
     try {
       await this.events.insert(eventObjects);

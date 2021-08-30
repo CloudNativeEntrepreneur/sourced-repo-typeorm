@@ -1,5 +1,6 @@
 import { EventEmitter } from "eventemitter3";
 import { createConnection, Connection, ConnectionOptions } from "typeorm";
+import { Event } from './Event'
 import debug from "debug";
 
 const log = debug("sourced-repo-typeorm");
@@ -14,6 +15,11 @@ export class PersistenceLayer extends EventEmitter {
 
   async connect(options: ConnectionOptions) {
     log("⏳ Initializing connection via typeorm...");
+
+    Object.assign(options, {
+      entities: [Event],
+      synchronize: options.synchronize || true
+    })
 
     try {
       this.connection = await createConnection(options);
