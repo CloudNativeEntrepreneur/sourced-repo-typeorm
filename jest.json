@@ -1,0 +1,19 @@
+{
+  "roots": ["<rootDir>/src", "<rootDir>/__tests__/unit"],
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "modulePaths": [
+    "<rootDir>/src"
+  ],
+  "moduleDirectories": [
+    "node_modules"
+  ],
+  "moduleFileExtensions": [
+    "js",
+    "ts"
+  ],
+  "moduleNameMapper": {
+    "^\\$src(.*)$": "<rootDir>/src$1"
+  },
+  "collectCoverageFrom": ["src/*.(js|ts)"]
+}
