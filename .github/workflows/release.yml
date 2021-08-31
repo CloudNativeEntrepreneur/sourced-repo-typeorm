@@ -7,6 +7,16 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: sourced
+          POSTGRES_PASSWORD: sourced
+          POSTGRES_DB: sourced
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -18,10 +28,10 @@ jobs:
           node-version: 16
       - run: npm ci
       - run: npm run lint
-      - run: npm run test
+      - run: npm run test:all
       - run: npm run build
-      # - name: Release
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      #   run: npx semantic-release
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npx semantic-release
