@@ -33,7 +33,7 @@ jest.mock("../../src/persistenceLayer", () => ({
   },
 }));
 
-describe("sourced-repo-postgresql", () => {
+describe("sourced-repo-typeorm", () => {
   it("should throw an error if trying to initialize a repository before connection has been established", () => {
     try {
       new Repository(Person);

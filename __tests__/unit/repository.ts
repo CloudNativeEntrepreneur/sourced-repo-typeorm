@@ -35,7 +35,7 @@ jest.mock("../../src/persistenceLayer", () => ({
   },
 }));
 
-describe("sourced-repo-postgresql", () => {
+describe("sourced-repo-typeorm", () => {
   it("should exist", () => {
     expect(Repository).toBeDefined();
   });
