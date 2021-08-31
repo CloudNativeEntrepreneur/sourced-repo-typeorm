@@ -13,11 +13,12 @@
     "test:integration:watch": "DEBUG=sourced* jest --config ./jest.integration.json --coverage --verbose --watch",
     "test:all": "jest --config ./jest.all.json --coverage --verbose",
     "lint": "eslint src __tests__ --ext=.ts",
-    "lint:fix": "eslint --fix src __tests__ --ext=.ts"
+    "lint:fix": "eslint --fix src __tests__ --ext=.ts",
+    "semantic-release": "semantic-release"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/CloudNativeEntrepreneur/sourced-repo-typeorm.git"
+    "url": "https://github.com/CloudNativeEntrepreneur/sourced-repo-typeorm.git"
   },
   "author": "",
   "license": "ISC",
