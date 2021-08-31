@@ -60,7 +60,7 @@ export class Repository extends EventEmitter {
     try {
       await this._commitEvents(entity);
     } catch (err) {
-      console.error(err);
+      log(err);
       throw err;
     }
 
