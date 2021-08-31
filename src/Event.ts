@@ -15,22 +15,18 @@ export class Event {
   id: string;
 
   @Column()
-  @Index()
   version: number;
 
   @Column()
-  @Index()
   snapshotVersion: number;
 
   @Column({ type: "bigint" })
   timestamp: number;
 
   @Column()
-  @Index()
   method: string;
 
   @Column()
-  @Index()
   entityType: string;
 
   @Column({ type: "jsonb" })
@@ -41,6 +37,5 @@ export class Event {
     enum: EventType,
     default: EventType.Event,
   })
-  @Index()
   type: EventType;
 }
