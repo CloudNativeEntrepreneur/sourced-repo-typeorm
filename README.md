@@ -1,3 +1,5 @@
+[![Release](https://github.com/CloudNativeEntrepreneur/sourced-repo-typeorm/actions/workflows/release.yml/badge.svg)](https://github.com/CloudNativeEntrepreneur/sourced-repo-typeorm/actions/workflows/release.yml)
+
 # sourced-repo-typeorm
 
 A sourced repo that uses TypeORM to persist events. This allows for passing different connection options, and thus, allows for different database for the persistence layer:
