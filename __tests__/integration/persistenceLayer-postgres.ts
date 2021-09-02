@@ -23,25 +23,25 @@ class Person extends Entity {
   assignId(id: string) {
     this.id = id;
     this.digest("assignId", id);
-    this.enqueue("id.assigned");
+    this.enqueue("id.assigned", this.state());
   }
 
   setName(name: string) {
     this.name = name;
     this.digest("setName", name);
-    this.enqueue("name.set");
+    this.enqueue("name.set", this.state());
   }
 
   setAge(age: number) {
     this.age = age;
     this.digest("setAge", age);
-    this.enqueue("age.set");
+    this.enqueue("age.set", this.state());
   }
 
   birthday() {
     this.age = this.age + 1;
     this.digest("birthday", {});
-    this.enqueue("birthday");
+    this.enqueue("birthday", this.state());
   }
 }
 
@@ -62,25 +62,7 @@ describe("sourced-repo-typeorm", () => {
     }
   });
 
-  it("should initialize after persistence layer connection has been established and then disconnect", async () => {
-    try {
-      await persistenceLayer.connect({
-        type: "postgres",
-        url: postgresConnectionUrl,
-        connectTimeoutMS: 1000,
-      });
-    } finally {
-      expect(persistenceLayer.connection).toBeDefined();
-    }
-
-    try {
-      await persistenceLayer.disconnect();
-    } finally {
-      expect(persistenceLayer.connection).toBeDefined();
-    }
-  });
-
-  it("should get and commit Entities", async () => {
+  it("should connect to persistenceLayer, get and commit Entities, then disconnect", async () => {
     try {
       await persistenceLayer.connect({
         type: "postgres",
@@ -139,10 +121,34 @@ describe("sourced-repo-typeorm", () => {
     expect(hpFromSnapshotWithExtraEvent.snapshotVersion).toBe(13);
     expect(hpFromSnapshotWithExtraEvent.version).toBe(16);
 
-    try {
-      await persistenceLayer.disconnect();
-    } finally {
-      expect(persistenceLayer.connection).toBeDefined();
+    let y = 0;
+    while (y < 10) {
+      hpFromSnapshotWithExtraEvent.birthday();
+      y++;
     }
+
+    await personRepository.commit(hpFromSnapshotWithExtraEvent);
+
+    const hpFromMultipleSnapshots = await personRepository.get(
+      harryPotterId
+    );
+
+    expect(hpFromMultipleSnapshots.snapshotVersion).toBe(26)
+    expect(hpFromMultipleSnapshots.age).toBe(40)
+
+    hpFromMultipleSnapshots.on('birthday', async (wizard) => {
+      log('birthday event handler')
+      expect(wizard.age).toBe(41)
+
+      try {
+        await persistenceLayer.disconnect();
+      } finally {
+        expect(persistenceLayer.connection).toBeDefined();
+      }
+    })
+
+    hpFromMultipleSnapshots.birthday()
+
+    await personRepository.commit(hpFromMultipleSnapshots);
   });
 });
