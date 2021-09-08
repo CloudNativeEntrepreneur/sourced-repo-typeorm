@@ -129,25 +129,23 @@ describe("sourced-repo-typeorm", () => {
 
     await personRepository.commit(hpFromSnapshotWithExtraEvent);
 
-    const hpFromMultipleSnapshots = await personRepository.get(
-      harryPotterId
-    );
+    const hpFromMultipleSnapshots = await personRepository.get(harryPotterId);
 
-    expect(hpFromMultipleSnapshots.snapshotVersion).toBe(26)
-    expect(hpFromMultipleSnapshots.age).toBe(40)
+    expect(hpFromMultipleSnapshots.snapshotVersion).toBe(26);
+    expect(hpFromMultipleSnapshots.age).toBe(40);
 
-    hpFromMultipleSnapshots.on('birthday', async (wizard) => {
-      log('birthday event handler')
-      expect(wizard.age).toBe(41)
+    hpFromMultipleSnapshots.on("birthday", async (wizard) => {
+      log("birthday event handler");
+      expect(wizard.age).toBe(41);
 
       try {
         await persistenceLayer.disconnect();
       } finally {
         expect(persistenceLayer.connection).toBeDefined();
       }
-    })
+    });
 
-    hpFromMultipleSnapshots.birthday()
+    hpFromMultipleSnapshots.birthday();
 
     await personRepository.commit(hpFromMultipleSnapshots);
   });
