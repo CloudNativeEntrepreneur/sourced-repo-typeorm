@@ -1,6 +1,6 @@
 import { EventEmitter } from "eventemitter3";
 import { persistenceLayer } from "./persistenceLayer";
-import { Event, EventType } from "./Event";
+import { Event } from "./Event";
 import { MoreThan, Connection, Repository as TypeORMRepository } from "typeorm";
 import debug from "debug";
 
@@ -81,7 +81,7 @@ export class Repository extends EventEmitter {
       },
       where: [
         {
-          type: EventType.Snapshot,
+          snapshot: true,
           entityType: this.EntityType.name,
           [index]: value,
         },
@@ -94,7 +94,7 @@ export class Repository extends EventEmitter {
       },
       where: [
         {
-          type: EventType.Event,
+          snapshot: false,
           entityType: this.EntityType.name,
           [index]: value,
           version: MoreThan(snapshot?.version || 0),
@@ -142,7 +142,7 @@ export class Repository extends EventEmitter {
       event.method = newEvent.method;
       event.entityType = this.EntityType.name;
       event.data = newEvent.data;
-      event.type = EventType.Event;
+      event.snapshot = false;
       return event;
     });
 
@@ -154,7 +154,7 @@ export class Repository extends EventEmitter {
 
       log({ snapshot });
       const snapshotEvent = new Event();
-      snapshotEvent.type = EventType.Snapshot;
+      snapshotEvent.snapshot = true;
       snapshotEvent.method = "snapshot";
       snapshotEvent.data = snapshot;
       snapshotEvent.id = snapshot.id;
