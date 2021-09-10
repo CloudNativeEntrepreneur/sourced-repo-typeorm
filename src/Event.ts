@@ -1,10 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, Index } from "typeorm";
 
-export enum EventType {
-  Event,
-  Snapshot,
-}
-
 @Entity()
 export class Event {
   @PrimaryGeneratedColumn({ type: "bigint" })
@@ -32,10 +27,6 @@ export class Event {
   @Column({ type: "jsonb" })
   data: any;
 
-  @Column({
-    type: "enum",
-    enum: EventType,
-    default: EventType.Event,
-  })
-  type: EventType;
+  @Column()
+  snapshot: boolean;
 }
