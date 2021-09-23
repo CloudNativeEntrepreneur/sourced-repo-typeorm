@@ -50,10 +50,9 @@ const postgresConnectionUrl =
   "postgresql://sourced:sourced@localhost:5432/sourced";
 
 describe("sourced-repo-typeorm", () => {
-
   afterAll(async () => {
-    await persistenceLayer.disconnect()
-  })
+    await persistenceLayer.disconnect();
+  });
   it("should throw an error if trying to initialize a repository before connection has been established", () => {
     try {
       new Repository(Person);
@@ -154,10 +153,10 @@ describe("sourced-repo-typeorm", () => {
     await personRepository.commit(hpFromMultipleSnapshots);
   });
 
-  it('should handle inserting a duplicate event', async () => {
-    const now = Date.now()
-    log('duplicate event test...')
-    
+  it("should handle inserting a duplicate event", async () => {
+    const now = Date.now();
+    log("duplicate event test...");
+
     try {
       await persistenceLayer.connect({
         type: "postgres",
@@ -168,32 +167,29 @@ describe("sourced-repo-typeorm", () => {
       expect(persistenceLayer.connection).toBeDefined();
     }
 
-    const id = `test-dupe-${now}`
+    const id = `test-dupe-${now}`;
 
     const personRepository = new Repository(Person);
 
-    const person = new Person()
-    person.assignId(id)
+    const person = new Person();
+    person.assignId(id);
 
-    await personRepository.commit(person)
+    await personRepository.commit(person);
 
-    let person2
+    const person2 = await personRepository.get(id);
 
-    person2 = await personRepository.get(id)
+    log("person 2", { person2 });
+    expect(person2.id).toEqual(id);
 
-    log('person 2', {person2})
-    expect(person2.id).toEqual(id)
-
-    let person3 = new Person()
-    person3.assignId(id)
+    const person3 = new Person();
+    person3.assignId(id);
 
     try {
-      await personRepository.commit(person3)
+      await personRepository.commit(person3);
     } catch (err) {
-      log('🚨 The Error', { err })
-      expect(err).toBeDefined()
-      expect(err.code).toBe("23505")
+      log("🚨 The Error", { err });
+      expect(err).toBeDefined();
+      expect(err.code).toBe("23505");
     }
-
   });
 });
