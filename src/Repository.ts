@@ -33,7 +33,7 @@ export class Repository extends EventEmitter {
 
     if (!persistenceLayer.connection) {
       throw new Error(
-        "persistenceLayer has not been initialized. you must call require('sourced-repo/persistenceLayer').connect(connectionOptions); before instantiating a Repository"
+        "🚨 persistenceLayer has not been initialized. you must call require('sourced-repo/persistenceLayer').connect(connectionOptions); before instantiating a Repository"
       );
     }
 
@@ -49,7 +49,7 @@ export class Repository extends EventEmitter {
 
     this.events = this.connection.getRepository(Event);
 
-    log(`"${this.EntityType.name}" events store ready`);
+    log(`✅ "${this.EntityType.name}" events store ready`);
 
     this.emit("ready");
   }
@@ -60,7 +60,7 @@ export class Repository extends EventEmitter {
     try {
       await this._commitEvents(entity);
     } catch (err) {
-      log(err);
+      log("🚨 Error commiting events!", { entity, err });
       throw err;
     }
 
