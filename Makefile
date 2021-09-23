@@ -12,3 +12,9 @@ integration-tests:
 	sleep 5
 	npm run test:integration
 	make down
+
+test:
+	make up
+	sleep 5
+	npm run test:all
+	make down

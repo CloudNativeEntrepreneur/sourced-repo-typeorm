@@ -1,15 +1,18 @@
-import { Entity, PrimaryGeneratedColumn, Column, Index } from "typeorm";
+import { Entity, PrimaryColumn, Column, Index } from "typeorm";
 
 @Entity()
 export class Event {
-  @PrimaryGeneratedColumn({ type: "bigint" })
-  _id: string;
+  @PrimaryColumn()
+  entityType: string;
 
-  @Column()
+  @PrimaryColumn()
   @Index()
   id: string;
 
-  @Column()
+  @PrimaryColumn()
+  method: string;
+
+  @PrimaryColumn()
   version: number;
 
   @Column()
@@ -17,12 +20,6 @@ export class Event {
 
   @Column({ type: "bigint" })
   timestamp: number;
-
-  @Column()
-  method: string;
-
-  @Column()
-  entityType: string;
 
   @Column({ type: "jsonb" })
   data: any;
