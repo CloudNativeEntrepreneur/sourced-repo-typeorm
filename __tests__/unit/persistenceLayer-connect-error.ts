@@ -4,6 +4,7 @@ jest.mock("typeorm", () => ({
   createConnection: jest.fn(() => Promise.reject("Unable to connect")),
   Connection: jest.fn(),
   PrimaryGeneratedColumn: jest.fn(),
+  PrimaryColumn: jest.fn(),
   Column: jest.fn(),
   Entity: jest.fn(),
   Index: jest.fn(),
