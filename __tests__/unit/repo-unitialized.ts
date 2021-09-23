@@ -40,7 +40,7 @@ describe("sourced-repo-typeorm", () => {
     } catch (err) {
       expect(err).toEqual(
         new Error(
-          "persistenceLayer has not been initialized. you must call require('sourced-repo/persistenceLayer').connect(connectionOptions); before instantiating a Repository"
+          "🚨 persistenceLayer has not been initialized. you must call require('sourced-repo/persistenceLayer').connect(connectionOptions); before instantiating a Repository"
         )
       );
     }

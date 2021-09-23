@@ -9,9 +9,9 @@
     "build": "tsc -p tsconfig.json && tsc -p tsconfig-cjs.json",
     "test": "jest --config ./jest.json --coverage --verbose",
     "test:watch": "DEBUG=sourced* jest --config ./jest.json --coverage --verbose --watch",
-    "test:integration": "DEBUG=sourced* jest --config ./jest.integration.json --coverage --verbose",
-    "test:integration:watch": "DEBUG=sourced* jest --config ./jest.integration.json --coverage --verbose --watch",
-    "test:all": "jest --config ./jest.all.json --coverage --verbose",
+    "test:integration": "DEBUG=sourced-repo-typeorm:integration-tests jest --config ./jest.integration.json --coverage --verbose",
+    "test:integration:watch": "DEBUG=sourced-repo-typeorm:integration-tests jest --config ./jest.integration.json --coverage --verbose --watch",
+    "test:all": "DEBUG=sourced-repo-typeorm:integration-tests jest --config ./jest.all.json --coverage --verbose",
     "lint": "eslint src __tests__ --ext=.ts",
     "lint:fix": "eslint --fix src __tests__ --ext=.ts",
     "semantic-release": "semantic-release"
