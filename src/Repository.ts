@@ -56,21 +56,14 @@ export class Repository extends EventEmitter {
 
   async commit(entity) {
     log(`⏳ committing ${this.EntityType.name} for id ${entity.id}`);
-
-    try {
-      await this._commitEvents(entity);
-    } catch (err) {
-      const message = `🚨 Error commiting events! - ${err.code}, ${err.detail}`;
-      log(message);
-      return Promise.reject(err);
-    }
-
+    await this._commitEvents(entity);
     this._emitEvents(entity);
-    return this;
+    return entity;
   }
 
   async get(id) {
-    return this._getByIndex("id", id);
+    const entity = await this._getByIndex("id", id);
+    return entity;
   }
 
   async _getByIndex(index, value) {
@@ -166,12 +159,7 @@ export class Repository extends EventEmitter {
       eventObjects.push(snapshotEvent);
     }
     log("⏳ Inserting event objects", { eventObjects: eventObjects.length });
-    try {
-      await this.events.insert(eventObjects);
-    } catch (err) {
-      log("🚨 failed to insert new events");
-      throw err;
-    }
+    await this.events.insert(eventObjects);
     entity.newEvents = [];
 
     log(`✅ committed ${this.EntityType.name}.events for id ${entity.id}`);
