@@ -29,7 +29,7 @@ export class PersistenceLayer extends EventEmitter {
         "🚨 PersistenceLayer Connection Error. Please make sure PersistenceLayer is running: ",
         err
       );
-      throw new Error(err);
+      throw err;
     }
 
     return this.connection;
@@ -41,7 +41,7 @@ export class PersistenceLayer extends EventEmitter {
       await this.connection.close();
     } catch (err) {
       log("🚨 Error while closing PersistenceLayer Connection:", err);
-      throw new Error(err);
+      throw err;
     }
     log("✅ Closed sourced typeorm connection");
   }

@@ -3,7 +3,9 @@ import { persistenceLayer } from "../../src/persistenceLayer";
 jest.mock("typeorm", () => ({
   createConnection: jest.fn(() =>
     Promise.resolve({
-      close: jest.fn(() => Promise.reject("Unable to close connection")),
+      close: jest.fn(() =>
+        Promise.reject(new Error("Unable to close connection"))
+      ),
     })
   ),
   Connection: jest.fn(),

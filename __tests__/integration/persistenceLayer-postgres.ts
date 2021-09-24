@@ -187,8 +187,9 @@ describe("sourced-repo-typeorm", () => {
     try {
       await personRepository.commit(person3);
     } catch (err) {
-      log("🚨 The Error", { err });
+      log("🚨 The Error", { detail: err.detail, code: err.code });
       expect(err).toBeDefined();
+      expect(err.detail).toBeDefined();
       expect(err.code).toBe("23505");
     }
   });

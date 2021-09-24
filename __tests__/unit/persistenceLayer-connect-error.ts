@@ -1,7 +1,9 @@
 import { persistenceLayer } from "../../src/persistenceLayer";
 
 jest.mock("typeorm", () => ({
-  createConnection: jest.fn(() => Promise.reject("Unable to connect")),
+  createConnection: jest.fn(() =>
+    Promise.reject(new Error("Unable to connect"))
+  ),
   Connection: jest.fn(),
   PrimaryGeneratedColumn: jest.fn(),
   PrimaryColumn: jest.fn(),
