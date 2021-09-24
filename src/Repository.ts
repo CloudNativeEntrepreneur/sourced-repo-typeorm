@@ -62,7 +62,7 @@ export class Repository extends EventEmitter {
     } catch (err) {
       const message = `🚨 Error commiting events! - ${err.code}, ${err.detail}`;
       log(message);
-      throw err;
+      return Promise.reject(err);
     }
 
     this._emitEvents(entity);
