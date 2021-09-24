@@ -68,7 +68,7 @@ export class Repository extends EventEmitter {
     return this;
   }
 
-  get(id) {
+  async get(id) {
     return this._getByIndex("id", id);
   }
 
