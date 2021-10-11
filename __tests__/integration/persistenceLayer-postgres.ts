@@ -194,3 +194,26 @@ describe("sourced-repo-typeorm", () => {
     }
   });
 });
+
+describe("sourced-repo-typeorm connection options", () => {
+  afterAll(async () => {
+    await persistenceLayer.disconnect();
+  });
+  it("should not overwrite options", async () => {
+    const now = Date.now();
+    log("duplicate event test...");
+
+    try {
+      await persistenceLayer.connect({
+        type: "postgres",
+        url: postgresConnectionUrl,
+        connectTimeoutMS: 1000,
+        synchronize: false,
+      });
+    } finally {
+      expect(persistenceLayer.connectionOptions).toBeDefined();
+      expect(persistenceLayer.connectionOptions.synchronize).toBe(false);
+      expect(persistenceLayer.connectionOptions.entities).toBeDefined();
+    }
+  });
+});
