@@ -7,10 +7,12 @@ const log = debug("sourced-repo-typeorm");
 
 export class PersistenceLayer extends EventEmitter {
   connection: Connection;
+  connectionOptions: ConnectionOptions;
 
   constructor() {
     super();
     this.connection = null;
+    this.connectionOptions = null;
   }
 
   async connect(options: ConnectionOptions) {
@@ -18,11 +20,14 @@ export class PersistenceLayer extends EventEmitter {
 
     Object.assign(options, {
       entities: [Event],
-      synchronize: options.synchronize || true,
+      synchronize:
+        typeof options.synchronize !== "undefined" ? options.synchronize : true,
     });
 
+    this.connectionOptions = options;
+
     try {
-      this.connection = await createConnection(options);
+      this.connection = await createConnection(this.connectionOptions);
       log("✅ Initialized connection via typeorm");
     } catch (err) {
       log(
