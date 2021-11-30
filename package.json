@@ -27,10 +27,10 @@
   },
   "homepage": "https://github.com/CloudNativeEntrepreneur/sourced-repo-typeorm#readme",
   "dependencies": {
-    "eventemitter3": "^4.0.7",
+    "eventemitter3": "4.0.7",
     "pg": "8.7.1",
-    "reflect-metadata": "^0.1.13",
-    "typeorm": "^0.2.37"
+    "reflect-metadata": "0.1.13",
+    "typeorm": "0.2.37"
   },
   "devDependencies": {
     "@commitlint/cli": "15.0.0",
