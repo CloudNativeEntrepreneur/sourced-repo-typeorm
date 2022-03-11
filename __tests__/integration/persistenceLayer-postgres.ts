@@ -49,10 +49,8 @@ const postgresConnectionUrl =
   process.env.POSTGRES_URL ||
   "postgresql://sourced:sourced@localhost:5432/sourced";
 
-describe("sourced-repo-typeorm", () => {
-  afterAll(async () => {
-    await persistenceLayer.disconnect();
-  });
+
+describe('error', () => {
   it("should throw an error if trying to initialize a repository before connection has been established", () => {
     try {
       new Repository(Person);
@@ -64,8 +62,10 @@ describe("sourced-repo-typeorm", () => {
       );
     }
   });
+});
 
-  it("should connect to persistenceLayer, get and commit Entities, then disconnect", async () => {
+describe("sourced-repo-typeorm", () => {
+  beforeAll(async () => {
     try {
       await persistenceLayer.connect({
         type: "postgres",
@@ -75,7 +75,14 @@ describe("sourced-repo-typeorm", () => {
     } finally {
       expect(persistenceLayer.connection).toBeDefined();
     }
+  });
+  afterAll(async () => {
+    await persistenceLayer?.disconnect();
+  });
+  
 
+  it("should connect to persistenceLayer, get and commit Entities, then disconnect", async () => {
+  
     const personRepository = new Repository(Person);
 
     const person1 = await personRepository.get(1);
@@ -95,6 +102,7 @@ describe("sourced-repo-typeorm", () => {
     expect(harryPotter.name).toEqual(person2.name);
     expect(harryPotter.age).toEqual(person2.age);
     expect(harryPotter.version).toEqual(person2.version);
+    expect(harryPotter.snapshotVersion).toEqual(0);
 
     let x = 0;
     while (x < 10) {
@@ -141,11 +149,11 @@ describe("sourced-repo-typeorm", () => {
       log("birthday event handler");
       expect(wizard.age).toBe(41);
 
-      try {
-        await persistenceLayer.disconnect();
-      } finally {
-        expect(persistenceLayer.connection).toBeDefined();
-      }
+      // try {
+      //   await persistenceLayer.disconnect();
+      // } finally {
+      //   expect(persistenceLayer.connection).toBeDefined();
+      // }
     });
 
     hpFromMultipleSnapshots.birthday();
@@ -157,15 +165,15 @@ describe("sourced-repo-typeorm", () => {
     const now = Date.now();
     log("duplicate event test...");
 
-    try {
-      await persistenceLayer.connect({
-        type: "postgres",
-        url: postgresConnectionUrl,
-        connectTimeoutMS: 1000,
-      });
-    } finally {
-      expect(persistenceLayer.connection).toBeDefined();
-    }
+    // try {
+    //   await persistenceLayer.connect({
+    //     type: "postgres",
+    //     url: postgresConnectionUrl,
+    //     connectTimeoutMS: 1000,
+    //   });
+    // } finally {
+    //   expect(persistenceLayer.connection).toBeDefined();
+    // }
 
     const id = `test-dupe-${now}`;
 
@@ -192,6 +200,35 @@ describe("sourced-repo-typeorm", () => {
       expect(err.detail).toBeDefined();
       expect(err.code).toBe("23505");
     }
+
+    // await persistenceLayer.disconnect();
+  });
+
+  it("should be able to force a snapshot with options on commit", async () => {
+    // try {
+    //   await persistenceLayer.connect({
+    //     type: "postgres",
+    //     url: postgresConnectionUrl,
+    //     connectTimeoutMS: 1000,
+    //   });
+    // } finally {
+    //   expect(persistenceLayer.connection).toBeDefined();
+    // }
+
+    const personRepository = new Repository(Person);
+
+    const person = new Person();
+    const harryPotterId = uuid();
+    person.assignId(harryPotterId);
+    person.setName("Harry Potter");
+    person.setAge(17);
+
+    await personRepository.commit(person, { forceSnapshot: true });
+
+    expect(person.version).toBe(3);
+    expect(person.snapshotVersion).toBe(3);
+
+    // await persistenceLayer.disconnect();
   });
 });
 
