@@ -49,8 +49,7 @@ const postgresConnectionUrl =
   process.env.POSTGRES_URL ||
   "postgresql://sourced:sourced@localhost:5432/sourced";
 
-
-describe('error', () => {
+describe("error", () => {
   it("should throw an error if trying to initialize a repository before connection has been established", () => {
     try {
       new Repository(Person);
@@ -79,10 +78,8 @@ describe("sourced-repo-typeorm", () => {
   afterAll(async () => {
     await persistenceLayer?.disconnect();
   });
-  
 
   it("should connect to persistenceLayer, get and commit Entities, then disconnect", async () => {
-  
     const personRepository = new Repository(Person);
 
     const person1 = await personRepository.get(1);
@@ -148,12 +145,6 @@ describe("sourced-repo-typeorm", () => {
     hpFromMultipleSnapshots.on("birthday", async (wizard) => {
       log("birthday event handler");
       expect(wizard.age).toBe(41);
-
-      // try {
-      //   await persistenceLayer.disconnect();
-      // } finally {
-      //   expect(persistenceLayer.connection).toBeDefined();
-      // }
     });
 
     hpFromMultipleSnapshots.birthday();
@@ -164,16 +155,6 @@ describe("sourced-repo-typeorm", () => {
   it("should handle inserting a duplicate event", async () => {
     const now = Date.now();
     log("duplicate event test...");
-
-    // try {
-    //   await persistenceLayer.connect({
-    //     type: "postgres",
-    //     url: postgresConnectionUrl,
-    //     connectTimeoutMS: 1000,
-    //   });
-    // } finally {
-    //   expect(persistenceLayer.connection).toBeDefined();
-    // }
 
     const id = `test-dupe-${now}`;
 
@@ -200,21 +181,9 @@ describe("sourced-repo-typeorm", () => {
       expect(err.detail).toBeDefined();
       expect(err.code).toBe("23505");
     }
-
-    // await persistenceLayer.disconnect();
   });
 
   it("should be able to force a snapshot with options on commit", async () => {
-    // try {
-    //   await persistenceLayer.connect({
-    //     type: "postgres",
-    //     url: postgresConnectionUrl,
-    //     connectTimeoutMS: 1000,
-    //   });
-    // } finally {
-    //   expect(persistenceLayer.connection).toBeDefined();
-    // }
-
     const personRepository = new Repository(Person);
 
     const person = new Person();
@@ -227,8 +196,6 @@ describe("sourced-repo-typeorm", () => {
 
     expect(person.version).toBe(3);
     expect(person.snapshotVersion).toBe(3);
-
-    // await persistenceLayer.disconnect();
   });
 });
 

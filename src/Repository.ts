@@ -141,7 +141,8 @@ export class Repository extends EventEmitter {
     });
 
     if (
-      this.forceSnapshot || options?.forceSnapshot ||
+      this.forceSnapshot ||
+      options?.forceSnapshot ||
       entity.version >= entity.snapshotVersion + this.snapshotFrequency
     ) {
       const snapshot = entity.snapshot();
