@@ -54,9 +54,9 @@ export class Repository extends EventEmitter {
     this.emit("ready");
   }
 
-  async commit(entity) {
+  async commit(entity, options?: { forceSnapshot: boolean }) {
     log(`⏳ committing ${this.EntityType.name} for id ${entity.id}`);
-    await this._commitEvents(entity);
+    await this._commitEvents(entity, options);
     this._emitEvents(entity);
     return entity;
   }
@@ -111,7 +111,7 @@ export class Repository extends EventEmitter {
     return entity;
   }
 
-  async _commitEvents(entity) {
+  async _commitEvents(entity, options?) {
     if (entity.newEvents.length === 0) return null;
 
     if (!entity.id) {
@@ -141,7 +141,7 @@ export class Repository extends EventEmitter {
     });
 
     if (
-      this.forceSnapshot ||
+      this.forceSnapshot || options?.forceSnapshot ||
       entity.version >= entity.snapshotVersion + this.snapshotFrequency
     ) {
       const snapshot = entity.snapshot();
