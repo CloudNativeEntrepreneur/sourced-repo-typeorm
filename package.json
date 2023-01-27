@@ -28,7 +28,7 @@
   "homepage": "https://github.com/CloudNativeEntrepreneur/sourced-repo-typeorm#readme",
   "dependencies": {
     "eventemitter3": "4.0.7",
-    "pg": "8.8.0",
+    "pg": "8.9.0",
     "typeorm": "0.3.11"
   },
   "devDependencies": {
